@@ -14,7 +14,6 @@ var _apiRequestStringCurrent = app.doScript(
   ScriptLanguage.APPLESCRIPT_LANGUAGE
 );
 var _jsonContentCurrent = _apiRequestStringCurrent;
-
 //Abfangen Fehler
 if (_apiVacation) {
   try {
@@ -32,8 +31,6 @@ if (_apiVacation) {
     exit();
   }
 }
-
-//New Aarray
 
 // Liste Schuljahre
 _schoolYear = [];
@@ -291,8 +288,14 @@ if (dialogResult == 1) {
   vacation();
 }
 
+function test() {
+  $.writeln(selectKalenderjahr.selection.toString() - 1);
+  $.bp();
+}
+
 //Schliefe durch Ferien NEU
 _ArrayVacation = [];
+
 for (var iv = 0; iv < objekt.data.length; iv++) {
   data = objekt.data[iv];
   vATS = data.date_start.split("-"); //Auftrennung Startdatum
@@ -359,8 +362,14 @@ function vacation() {
   _selectSchoolYear = selectSchuljahr.selection.text;
 
   //Vorlage öffnen
-  var _idml = app.activeScript.path + "/Ferienuebersicht.idml";
-  app.open(File(_idml)); 
+
+  if (schuljahr.value == true) {
+    var _idml = app.activeScript.path + "/Ferienuebersicht.idml";
+  } else if (kalenderjahr.value == true) {
+    var _idml = app.activeScript.path + "/Ferienuebersicht_Jahr.idml";
+  }
+
+  app.open(File(_idml));
 
   //Schleife durch die Daten
   for (var iv = 0; iv < objekt.data.length; iv++) {
@@ -377,7 +386,16 @@ function vacation() {
 
     //Datum Zeitraum Ausgabe erstellen
     _dateReplace =
-      vATS[2] + "." + vATS[1] + ".-" + vATE[2] + "." + vATE[1] + ".";
+      vATS[2] +
+      "." +
+      vATS[1] +
+      "." +
+     
+      "-" +
+      vATE[2] +
+      "." +
+      vATE[1] +
+      "." 
     //Datum Eintagestermin erstellen
     _dayReplace = vATS[2] + "." + vATS[1] + ".";
 
@@ -387,61 +405,151 @@ function vacation() {
     vRE = data.relation_id; //ID Zuordnung
 
     //Abgleich des Schuljahr mit der Auswahl
-    if (data.schoolyear_id == _schoolID) {
+
+    if (schuljahr.value == true) {
+      if (data.schoolyear_id == _schoolID) {
+        for (var ivO = 0; ivO < objekt.base_data[0].vacation.length; ivO++) {
+          idfound = objekt.base_data[0].vacation[i];
+          if (data.school_vacation == true) {
+            //Suche und Ersetzen Ferien
+            app.findGrepPreferences = NothingEnum.nothing;
+
+            app.findGrepPreferences.findWhat =
+              _changeTried + vBL + "-" + vVB + "-1" + _changeTried;
+            app.changeGrepPreferences = NothingEnum.nothing;
+            if (data.date_end != null) {
+              app.changeGrepPreferences.changeTo = _dateReplace;
+            }
+            if (data.date_end == null) {
+              app.changeGrepPreferences.changeTo = _dayReplace;
+            }
+
+            if (data.more_entries == 2) {
+              app.findGrepPreferences = NothingEnum.nothing;
+              app.findGrepPreferences.findWhat =
+                _changeTried + vBL + "-" + vVB + "-2" + _changeTried;
+              app.changeGrepPreferences = NothingEnum.nothing;
+              if (data.date_end != null) {
+                app.changeGrepPreferences.changeTo = _dateReplace;
+              }
+              if (data.date_end == null) {
+                app.changeGrepPreferences.changeTo = _dayReplace;
+              }
+            }
+            if (data.more_entries == 3) {
+              app.findGrepPreferences = NothingEnum.nothing;
+              app.findGrepPreferences.findWhat =
+                _changeTried + vBL + "-" + vVB + "-3" + _changeTried;
+              app.changeGrepPreferences = NothingEnum.nothing;
+              if (data.date_end != null) {
+                app.changeGrepPreferences.changeTo = _dateReplace;
+              }
+              if (data.date_end == null) {
+                app.changeGrepPreferences.changeTo = _dayReplace;
+              }
+            }
+            app.activeDocument.changeGrep();
+            app.findGrepPreferences = NothingEnum.nothing;
+            app.changeGrepPreferences = NothingEnum.nothing;
+          }
+          if (data.school_vacation == false) {
+            app.findGrepPreferences = NothingEnum.nothing;
+            app.findGrepPreferences.findWhat =
+              _changeTried + vBL + "-7-" + vVB + _changeTried;
+            app.changeGrepPreferences = NothingEnum.nothing;
+            if (data.date_end != null) {
+              app.changeGrepPreferences.changeTo = _dateReplace + "*";
+            }
+            if (data.date_end == null) {
+              app.changeGrepPreferences.changeTo = _dayReplace + "*";
+            }
+            app.activeDocument.changeGrep();
+            app.findGrepPreferences = NothingEnum.nothing;
+            app.changeGrepPreferences = NothingEnum.nothing;
+          }
+        }
+      }
+    }
+
+    // Vorheriges Jahr
+    var yearPrase = parseInt(selectKalenderjahr.selection.toString());
+    var nextYear = yearPrase + 1;
+    var lastYear = selectKalenderjahr.selection.toString() - 1;
+
+    // nächstes Jahr
+    // var nextYear = (selectKalenderjahr.selection.toString()) +1;
+    if (kalenderjahr.value == true) {
       for (var ivO = 0; ivO < objekt.base_data[0].vacation.length; ivO++) {
         idfound = objekt.base_data[0].vacation[i];
-        if (data.school_vacation == true) {
-          //Suche und Ersetzen Ferien
-          app.findGrepPreferences = NothingEnum.nothing;
+        if (vATEYA == selectKalenderjahr.selection.toString()) {
+          if (data.school_vacation == true) {
+            //Suche und Ersetzen Ferien
+            app.findGrepPreferences = NothingEnum.nothing;
 
+            app.findGrepPreferences.findWhat =
+              _changeTried + vBL + "-" + vVB + "-1" + _changeTried;
+            app.changeGrepPreferences = NothingEnum.nothing;
+            if (data.date_end != null) {
+              app.changeGrepPreferences.changeTo = _dateReplace;
+            }
+            if (data.date_end == null) {
+              app.changeGrepPreferences.changeTo = _dayReplace;
+            }
+
+            if (data.more_entries == 2) {
+              app.findGrepPreferences = NothingEnum.nothing;
+              app.findGrepPreferences.findWhat =
+                _changeTried + vBL + "-" + vVB + "-2" + _changeTried;
+              app.changeGrepPreferences = NothingEnum.nothing;
+              if (data.date_end != null) {
+                app.changeGrepPreferences.changeTo = _dateReplace;
+              }
+              if (data.date_end == null) {
+                app.changeGrepPreferences.changeTo = _dayReplace;
+              }
+            }
+            if (data.more_entries == 3) {
+              app.findGrepPreferences = NothingEnum.nothing;
+              app.findGrepPreferences.findWhat =
+                _changeTried + vBL + "-" + vVB + "-3" + _changeTried;
+              app.changeGrepPreferences = NothingEnum.nothing;
+              if (data.date_end != null) {
+                app.changeGrepPreferences.changeTo = _dateReplace;
+              }
+              if (data.date_end == null) {
+                app.changeGrepPreferences.changeTo = _dayReplace;
+              }
+            }
+            app.activeDocument.changeGrep();
+            app.findGrepPreferences = NothingEnum.nothing;
+            app.changeGrepPreferences = NothingEnum.nothing;
+          }
+          if (data.school_vacation == false) {
+            app.findGrepPreferences = NothingEnum.nothing;
+            app.findGrepPreferences.findWhat =
+              _changeTried + vBL + "-7-" + vVB + _changeTried;
+            app.changeGrepPreferences = NothingEnum.nothing;
+            if (data.date_end != null) {
+              app.changeGrepPreferences.changeTo = _dateReplace + "*";
+            }
+            if (data.date_end == null) {
+              app.changeGrepPreferences.changeTo = _dayReplace + "*";
+            }
+            app.activeDocument.changeGrep();
+            app.findGrepPreferences = NothingEnum.nothing;
+            app.changeGrepPreferences = NothingEnum.nothing;
+          }
+        }
+        if (vATEYA == nextYear && vVB == 2) {
+          app.findGrepPreferences = NothingEnum.nothing;
           app.findGrepPreferences.findWhat =
-            _changeTried + vBL + "-" + vVB + "-1" + _changeTried;
+            _changeTried + "n" + vBL + "-" + vVB + "-1" + _changeTried;
           app.changeGrepPreferences = NothingEnum.nothing;
           if (data.date_end != null) {
             app.changeGrepPreferences.changeTo = _dateReplace;
           }
           if (data.date_end == null) {
             app.changeGrepPreferences.changeTo = _dayReplace;
-          }
-
-          if (data.more_entries == 2) {
-            app.findGrepPreferences = NothingEnum.nothing;
-            app.findGrepPreferences.findWhat =
-              _changeTried + vBL + "-" + vVB + "-2" + _changeTried;
-            app.changeGrepPreferences = NothingEnum.nothing;
-            if (data.date_end != null) {
-              app.changeGrepPreferences.changeTo = _dateReplace;
-            }
-            if (data.date_end == null) {
-              app.changeGrepPreferences.changeTo = _dayReplace;
-            }
-          }
-          if (data.more_entries == 3) {
-            app.findGrepPreferences = NothingEnum.nothing;
-            app.findGrepPreferences.findWhat =
-              _changeTried + vBL + "-" + vVB + "-3" + _changeTried;
-            app.changeGrepPreferences = NothingEnum.nothing;
-            if (data.date_end != null) {
-              app.changeGrepPreferences.changeTo = _dateReplace;
-            }
-            if (data.date_end == null) {
-              app.changeGrepPreferences.changeTo = _dayReplace;
-            }
-          }
-          app.activeDocument.changeGrep();
-          app.findGrepPreferences = NothingEnum.nothing;
-          app.changeGrepPreferences = NothingEnum.nothing;
-        }
-        if (data.school_vacation == false) {
-          app.findGrepPreferences = NothingEnum.nothing;
-          app.findGrepPreferences.findWhat =
-            _changeTried + vBL + "-7-" + vVB + _changeTried;
-          app.changeGrepPreferences = NothingEnum.nothing;
-          if (data.date_end != null) {
-            app.changeGrepPreferences.changeTo = _dateReplace + "*";
-          }
-          if (data.date_end == null) {
-            app.changeGrepPreferences.changeTo = _dayReplace + "*";
           }
           app.activeDocument.changeGrep();
           app.findGrepPreferences = NothingEnum.nothing;
@@ -450,12 +558,36 @@ function vacation() {
       }
     }
   }
+  /*     $.writeln(vATEYA + ' - ' + lastYear);
+  $.bp(); */
 
   //Schuljahr im Titel ersetzen
   app.findGrepPreferences = NothingEnum.nothing;
   app.findGrepPreferences.findWhat = "##Schuljahr##";
   app.changeGrepPreferences = NothingEnum.nothing;
-  app.changeGrepPreferences.changeTo = _selectSchoolYear;
+  if (schuljahr.value == true) {
+    app.changeGrepPreferences.changeTo = _selectSchoolYear;
+  } else if (kalenderjahr.value == true) {
+    app.changeGrepPreferences.changeTo =
+      selectKalenderjahr.selection.toString();
+  }
+  app.activeDocument.changeGrep();
+
+  app.findGrepPreferences = NothingEnum.nothing;
+  app.findGrepPreferences.findWhat = "##v##";
+  app.changeGrepPreferences = NothingEnum.nothing;
+  app.changeGrepPreferences.changeTo =
+    selectKalenderjahr.selection.toString() -
+    1 +
+    "/" +
+    selectKalenderjahr.selection.toString();
+  app.activeDocument.changeGrep();
+
+  app.findGrepPreferences = NothingEnum.nothing;
+  app.findGrepPreferences.findWhat = "##n##";
+  app.changeGrepPreferences = NothingEnum.nothing;
+  app.changeGrepPreferences.changeTo =
+    selectKalenderjahr.selection.toString() + "/" + nextYear;
   app.activeDocument.changeGrep();
 
   //Leere Felder ersetzen
