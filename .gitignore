@@ -2,3 +2,5 @@
 jsconfig.json
 .vscode/launch.json
 closeDocument.jsx
+snippes.jsx
+.gitignore
