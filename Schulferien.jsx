@@ -2,7 +2,7 @@
 // © 27.05.2020 | Mario Fritsche
 // 16.10.2024 | Version 2.1
 // DESCRIPTION: Übersicht über alle Schulferien in Deutschland
-// www.indesign-kalender.de
+// www.indesign-kalender.de 
 
 //Notwendige Datei, um JSON auszuwerten
 #include "json.jsx";
